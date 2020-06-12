@@ -148,8 +148,7 @@ public class ActivityRecognitionLocationProvider extends AbstractLocationProvide
             if (isWatchingActivity) { return; }
             startTracking();
             if (mConfig.getStopOnStillActivity()) {
-                ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
-                        googleApiClient,
+                ActivityRecognition.getClient(mContext).requestActivityUpdates(
                         mConfig.getActivitiesInterval(),
                         detectedActivitiesPI
                 );
@@ -163,7 +162,7 @@ public class ActivityRecognitionLocationProvider extends AbstractLocationProvide
     private void detachRecorder() {
         if (isWatchingActivity) {
             logger.debug("Detaching recorder");
-            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, detectedActivitiesPI);
+            ActivityRecognition.getClient(mContext).removeActivityUpdates(detectedActivitiesPI);
             isWatchingActivity = false;
         }
     }
