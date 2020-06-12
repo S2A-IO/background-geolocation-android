@@ -52,9 +52,12 @@ public class BackgroundGeolocationFacade {
     public static final int AUTHORIZATION_AUTHORIZED = 1;
     public static final int AUTHORIZATION_DENIED = 0;
 
+    public static final String ACCESS_BACKGROUND_LOCATION = "android.permission.ACCESS_BACKGROUND_LOCATION";
+
     public static final String[] PERMISSIONS = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            ACCESS_BACKGROUND_LOCATION
     };
 
     private boolean mServiceBroadcastReceiverRegistered = false;
