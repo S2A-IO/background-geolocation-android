@@ -54,7 +54,7 @@ public class BackgroundGeolocationFacade {
 
     public static final String ACCESS_BACKGROUND_LOCATION = "android.permission.ACCESS_BACKGROUND_LOCATION";
 
-    public final String[] PERMISSIONS = {
+    public static String[] PERMISSIONS = {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION
     };
@@ -218,7 +218,11 @@ public class BackgroundGeolocationFacade {
 
         PermissionManager permissionManager = PermissionManager.getInstance(getContext());
         if ( android.os.Build.VERSION.SDK_INT > Build.VERSION_CODES.P ) {
-            PERMISSIONS[ 2 ] = ACCESS_BACKGROUND_LOCATION;
+            PERMISSIONS = new String[]{
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    ACCESS_BACKGROUND_LOCATION
+            };
         }
         permissionManager.checkPermissions(Arrays.asList(PERMISSIONS), new PermissionManager.PermissionRequestListener() {
             @Override
