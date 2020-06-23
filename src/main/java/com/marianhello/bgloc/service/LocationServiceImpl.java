@@ -18,6 +18,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
@@ -61,6 +62,8 @@ import com.marianhello.logging.UncaughtExceptionLogger;
 
 import org.chromium.content.browser.ThreadUtils;
 import org.json.JSONException;
+
+import java.util.Date;
 
 import static com.marianhello.bgloc.service.LocationServiceIntentBuilder.containsCommand;
 import static com.marianhello.bgloc.service.LocationServiceIntentBuilder.containsMessage;
@@ -553,7 +556,51 @@ public class LocationServiceImpl extends Service implements ProviderDelegate, Lo
             }
         });
 
-        postLocation(location);
+        if ( canSendLocation( location ) )
+            postLocation(location);
+    }
+
+    Date prevDate;
+    Location prevLocation;
+
+    boolean canSendLocation( BackgroundLocation currentLoc ) {
+        boolean validAccuracy = false;
+        boolean distanceCovered = false;
+        boolean timeSpent = false;
+
+        if ( !mConfig.hasDesiredAccuracy() || currentLoc.getAccuracy() <= mConfig.getDesiredAccuracy() ) {
+            validAccuracy = true;
+        }
+
+        Date currentDate = new Date();
+        if ( prevDate == null ) {
+            timeSpent = true;
+        } else {
+            double millisecondsSpent = ( currentDate.getTime() - prevDate.getTime() ) * 1000;
+            if ( !mConfig.hasActivitiesInterval() || ( mConfig.getActivitiesInterval() <= millisecondsSpent ) ) {
+                timeSpent = true;
+            }
+        }
+
+        Location currentLocation = new Location("currentLocation");
+        currentLocation.setLatitude(currentLoc.getLatitude());
+        currentLocation.setLongitude(currentLoc.getLongitude());
+
+        if ( prevLocation == null ) {
+            distanceCovered = true;
+        } else {
+            double distance = prevLocation.distanceTo( currentLocation );
+            if ( !mConfig.hasDistanceFilter() || ( mConfig.getDistanceFilter() <= distance ) ) {
+                distanceCovered = true;
+            }
+        }
+
+        if ( validAccuracy && timeSpent && distanceCovered ) {
+            prevDate = currentDate;
+            prevLocation = currentLocation;
+            return true;
+        }
+        return false;
     }
 
     @Override
